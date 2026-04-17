@@ -1,6 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -9,6 +10,11 @@ app.use(express.json());
 
 // Ruta para servir el frontend
 app.use(express.static('public'));
+
+// Ruta por defecto para servir index.html
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
 
 // Validar CURP contra rfc.gob.mx
 app.post('/api/validar-curp', async (req, res) => {
