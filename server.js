@@ -8,12 +8,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Ruta para servir el frontend
-app.use(express.static('public'));
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta por defecto para servir index.html
+// Ruta raíz - servir index.html
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Validar CURP contra rfc.gob.mx
