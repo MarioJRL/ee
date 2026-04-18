@@ -3,413 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cita SAT - Automática</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Cita SAT - Automatica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-        
-        * { font-family: 'Poppins', sans-serif; }
-        
-        body {
-            background: linear-gradient(to bottom right, #0f172a, #0e1f2e, #1a1a3e);
-            min-height: 100vh;
-        }
-
-        .glow-effect {
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .step-indicator {
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
-        }
-
-        .pulse-button {
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        input:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
+        * { font-family: 'Poppins', sans-serif; box-sizing: border-box; }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); min-height: 100vh; margin: 0; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-up { animation: slideUp 0.5s ease-out; }
+        .gradient-text { background: linear-gradient(135deg, #818cf8, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card { background: rgba(30,27,75,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(99,102,241,0.2); border-radius: 16px; }
+        .btn { background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white; font-weight: 600; padding: 14px; border-radius: 10px; width: 100%; cursor: pointer; font-size: 15px; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-green { background: linear-gradient(135deg, #059669, #10b981); }
+        .inp { width: 100%; padding: 12px 16px; background: rgba(15,23,42,0.7); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; color: white; font-size: 16px; }
+        .inp:focus { outline: none; border-color: #818cf8; }
+        .inp::placeholder { color: #475569; }
+        .row { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:rgba(15,23,42,0.5); border:1px solid rgba(99,102,241,0.15); border-radius:10px; margin-bottom:8px; }
+        .cbtn { background:rgba(99,102,241,0.15); border:none; color:#a5b4fc; padding:8px 12px; border-radius:8px; cursor:pointer; }
+        .err { background:rgba(127,29,29,0.3); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:12px; border-radius:10px; font-size:14px; margin-bottom:16px; }
+        .info { background:rgba(30,58,138,0.3); border:1px solid rgba(99,102,241,0.3); color:#a5b4fc; padding:12px; border-radius:10px; font-size:13px; }
+        .ok { background:rgba(5,46,22,0.4); border:1px solid rgba(34,197,94,0.3); color:#86efac; padding:16px; border-radius:10px; }
+        .dot { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; }
+        .da { background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; }
+        .dd { background:#059669; color:white; }
+        .di { background:rgba(30,27,75,0.8); color:#475569; border:1px solid rgba(99,102,241,0.2); }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <script type="text/babel">
-        const { useState } = React;
-
-        // Icons
-        const CopyIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-            </svg>
-        );
-
-        const CheckIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        );
-
-        const AlertIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-        );
-
-        const DownloadIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-        );
-
-        const CheckCircleIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-        );
-
-        const LoaderIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 6v6l4 2"></path>
-            </svg>
-        );
-
-        function SATCitaApp() {
-            const [step, setStep] = useState(1);
-            const [curp, setCurp] = useState('');
-            const [curpData, setCurpData] = useState(null);
-            const [emailData, setEmailData] = useState(null);
-            const [loading, setLoading] = useState(false);
-            const [error, setError] = useState('');
-            const [copied, setCopied] = useState(null);
-
-            const validarCurp = async () => {
-                setError('');
-                setLoading(true);
-
-                try {
-                    const response = await fetch('/api/validar-curp', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ curp: curp.toUpperCase() })
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        setError(data.error || 'Error al validar CURP');
-                        setLoading(false);
-                        return;
-                    }
-
-                    setCurpData(data.datos);
-                    setStep(2);
-                } catch (err) {
-                    setError('Error de conexión: ' + err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            const crearCorreo = async () => {
-                setError('');
-                setLoading(true);
-
-                try {
-                    const response = await fetch('/api/crear-correo', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(curpData)
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                        setError(data.error || 'Error al crear correo');
-                        setLoading(false);
-                        return;
-                    }
-
-                    setEmailData(data);
-                    setStep(3);
-                } catch (err) {
-                    setError('Error de conexión: ' + err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            const descargarCredenciales = async () => {
-                try {
-                    const response = await fetch('/api/descargar-credenciales', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: emailData.email,
-                            password: emailData.password,
-                            nombre: curpData.nombre,
-                            apellidoPaterno: curpData.apellidoPaterno,
-                            apellidoMaterno: curpData.apellidoMaterno,
-                            fechaNacimiento: curpData.fechaNacimiento,
-                            curp: curp.toUpperCase()
-                        })
-                    });
-
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'credenciales-sat.txt';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-
-                    setStep(4);
-                } catch (err) {
-                    setError('Error al descargar: ' + err.message);
-                }
-            };
-
-            const copyToClipboard = (text, field) => {
-                navigator.clipboard.writeText(text);
-                setCopied(field);
-                setTimeout(() => setCopied(null), 2000);
-            };
-
-            return (
-                <div className="min-h-screen text-white p-4 md:p-8">
-                    <div className="max-w-2xl mx-auto">
-                        {/* Header */}
-                        <div className="text-center mb-12 step-indicator">
-                            <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                                <span className="gradient-text">Cita SAT</span>
-                            </h1>
-                            <p className="text-slate-400">Automatización completa de inscripción</p>
-                        </div>
-
-                        {/* Progreso */}
-                        <div className="mb-10">
-                            <div className="flex justify-between mb-4">
-                                {[1, 2, 3, 4].map((s) => (
-                                    <div key={s} className={`flex items-center justify-center w-10 h-10 rounded-full font-bold transition-all ${
-                                        s <= step ? 'bg-blue-600 glow-effect' : 'bg-slate-700'
-                                    }`}>
-                                        {s < step ? <CheckCircleIcon /> : s}
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="w-full bg-slate-700 h-1 rounded-full overflow-hidden">
-                                <div 
-                                    className="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-500"
-                                    style={{ width: `${(step - 1) * 33.33}%` }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Paso 1: Validar CURP */}
-                        {step === 1 && (
-                            <div className="step-indicator bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold mb-2">Paso 1: Validar CURP</h2>
-                                    <p className="text-slate-400 text-sm">Ingresa tu CURP. Se validará contra rfc.gob.mx automáticamente</p>
-                                </div>
-
-                                <input
-                                    type="text"
-                                    value={curp}
-                                    onChange={(e) => setCurp(e.target.value.toUpperCase())}
-                                    placeholder="Ej: ABCD870101HDFMNN09"
-                                    className="w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-white placeholder-slate-500 text-lg font-mono"
-                                    maxLength={20}
-                                />
-                                <p className="text-xs text-slate-400">20 caracteres: 6 letras + 8 números (AAAAMMDD) + 6 caracteres</p>
-
-                                {error && (
-                                    <div className="flex items-center gap-3 p-4 rounded-lg bg-red-900/20 border border-red-700/50 text-red-200">
-                                        <AlertIcon />
-                                        <span className="text-sm">{error}</span>
-                                    </div>
-                                )}
-
-                                <button
-                                    onClick={validarCurp}
-                                    disabled={loading || curp.length < 20}
-                                    className="w-full py-3 px-4 rounded-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-                                >
-                                    {loading ? <LoaderIcon /> : 'Validar CURP'}
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Paso 2: Datos Extraídos */}
-                        {step === 2 && curpData && (
-                            <div className="step-indicator bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold mb-2">Paso 2: Datos Validados ✓</h2>
-                                    <p className="text-slate-400 text-sm">Se encontraron los siguientes datos en rfc.gob.mx</p>
-                                </div>
-
-                                <div className="space-y-3">
-                                    {[
-                                        { label: 'CURP', value: curp.toUpperCase() },
-                                        { label: 'Nombre', value: curpData.nombre },
-                                        { label: 'Apellido Paterno', value: curpData.apellidoPaterno },
-                                        { label: 'Apellido Materno', value: curpData.apellidoMaterno },
-                                        { label: 'Fecha de Nacimiento', value: curpData.fechaNacimiento },
-                                        { label: 'RFC', value: curpData.rfc }
-                                    ].map((item) => (
-                                        <div key={item.label} className="flex items-center justify-between p-4 rounded-lg bg-slate-700/50 border border-slate-600">
-                                            <div>
-                                                <p className="text-slate-400 text-sm">{item.label}</p>
-                                                <p className="font-mono font-bold">{item.value}</p>
-                                            </div>
-                                            <button
-                                                onClick={() => copyToClipboard(item.value, item.label)}
-                                                className="p-2 hover:bg-slate-600 rounded transition-all"
-                                            >
-                                                {copied === item.label ? (
-                                                    <span className="text-green-400"><CheckIcon /></span>
-                                                ) : (
-                                                    <span className="text-slate-400"><CopyIcon /></span>
-                                                )}
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <button
-                                    onClick={crearCorreo}
-                                    disabled={loading}
-                                    className="w-full py-3 px-4 rounded-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-                                >
-                                    {loading ? <LoaderIcon /> : 'Crear Correo Atomic Mail'}
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Paso 3: Correo Creado */}
-                        {step === 3 && emailData && (
-                            <div className="step-indicator bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold mb-2">Paso 3: Correo Creado ✓</h2>
-                                    <p className="text-slate-400 text-sm">Tu correo Atomic Mail ha sido creado. Descarga las credenciales.</p>
-                                </div>
-
-                                <div className="p-6 rounded-lg bg-green-900/20 border border-green-500/30 space-y-4">
-                                    <div className="space-y-3">
-                                        <div>
-                                            <p className="text-slate-400 text-sm">📧 Email</p>
-                                            <p className="font-mono font-bold text-green-400">{emailData.email}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-slate-400 text-sm">🔐 Contraseña</p>
-                                            <p className="font-mono font-bold text-green-400">{"•".repeat(emailData.password.length)}</p>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => copyToClipboard(emailData.email, 'email')}
-                                        className="w-full py-2 px-4 rounded-lg font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm"
-                                    >
-                                        {copied === 'email' ? (
-                                            <>
-                                                <CheckIcon />
-                                                Email Copiado
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CopyIcon />
-                                                Copiar Email
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-
-                                <div className="p-4 rounded-lg bg-blue-900/20 border border-blue-700/50 text-blue-200 text-sm space-y-2">
-                                    <strong>⚠️ Instrucciones SAT:</strong>
-                                    <ol className="list-decimal list-inside space-y-1">
-                                        <li>Ve a <strong>sat.gob.mx</strong> → "Cita - Inscripción"</li>
-                                        <li>Completa el formulario con tus datos (arriba)</li>
-                                        <li>En el campo de correo: <code className="bg-blue-900/30 px-2 py-1 rounded">{emailData.email}</code></li>
-                                        <li>Cuando llegue el código, verifica en <strong>atomicmail.io</strong></li>
-                                    </ol>
-                                </div>
-
-                                <button
-                                    onClick={descargarCredenciales}
-                                    className="w-full py-3 px-4 rounded-lg font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:shadow-lg pulse-button transition-all flex items-center justify-center gap-2"
-                                >
-                                    <DownloadIcon />
-                                    Descargar Credenciales
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Paso 4: Completado */}
-                        {step === 4 && (
-                            <div className="step-indicator bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 space-y-6 text-center">
-                                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-900/30 border-2 border-green-500">
-                                    <CheckCircleIcon />
-                                </div>
-                                <h2 className="text-3xl font-bold">¡Listo!</h2>
-                                <p className="text-slate-400">Archivo descargado. Ya puedes proceder al SAT.</p>
-                                
-                                <div className="p-6 rounded-lg bg-green-900/20 border border-green-500/50 space-y-3 text-left">
-                                    <h3 className="font-bold text-lg">Próximos pasos:</h3>
-                                    <ul className="space-y-2 text-sm text-slate-300">
-                                        <li>✓ CURP validado contra rfc.gob.mx</li>
-                                        <li>✓ Correo Atomic Mail creado</li>
-                                        <li>✓ Credenciales descargadas</li>
-                                        <li>→ Accede a sat.gob.mx con los datos</li>
-                                        <li>→ Ingresa el correo en el formulario</li>
-                                        <li>→ Recibe el código en Atomic Mail</li>
-                                        <li>→ ¡Tu cita estará lista!</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<SATCitaApp />);
-    </script>
+<div id="app" style="padding:20px;max-width:580px;margin:0 auto;"></div>
+<script>
+const S={step:1,curp:'',data:null,mail:null,loading:false,err:'',copied:null,nom:'',ap1:'',ap2:''};
+const set=u=>{Object.assign(S,u);render();};
+async function valCurp(){
+  const c=S.curp.trim().toUpperCase();set({loading:true,err:''});
+  try{const r=await fetch('/api/validar-curp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({curp:c})});const d=await r.json();if(!r.ok){set({loading:false,err:d.error||'Error'});return;}set({loading:false,data:d.datos,step:2});}
+  catch(e){set({loading:false,err:'Error: '+e.message});}
+}
+async function crearMail(){
+  if(!S.nom.trim()||!S.ap1.trim()){set({err:'Nombre y apellido paterno requeridos'});return;}
+  set({loading:true,err:''});
+  try{const r=await fetch('/api/crear-correo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:S.nom.trim(),apellidoPaterno:S.ap1.trim(),apellidoMaterno:S.ap2.trim(),fechaNacimiento:S.data.fechaNacimiento})});const d=await r.json();if(!r.ok){set({loading:false,err:d.error||'Error'});return;}set({loading:false,mail:d,step:3});}
+  catch(e){set({loading:false,err:'Error: '+e.message});}
+}
+async function descargar(){
+  try{const r=await fetch('/api/descargar-credenciales',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:S.mail.email,password:S.mail.password,nombre:S.nom.trim(),apellidoPaterno:S.ap1.trim(),apellidoMaterno:S.ap2.trim(),fechaNacimiento:S.data.fechaNacimiento,curp:S.curp.toUpperCase()})});const b=await r.blob();const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='credenciales-sat.txt';a.click();URL.revokeObjectURL(u);set({step:4});}
+  catch(e){set({err:'Error: '+e.message});}
+}
+function cp(t,k){navigator.clipboard.writeText(t);set({copied:k});setTimeout(()=>set({copied:null}),2000);}
+function render(){
+  const{step,curp,loading,err,data,mail,copied}=S;
+  const dots=['CURP','Datos','Correo','Listo'];
+  document.getElementById('app').innerHTML=`<div class="slide-up"><div style="text-align:center;margin-bottom:24px"><h1 style="font-size:32px;font-weight:700;margin:0" class="gradient-text">Cita SAT</h1><p style="color:#64748b;margin:4px 0 0;font-size:13px">Automatizacion inscripcion RFC</p></div><div style="display:flex;align-items:center;margin-bottom:20px">${dots.map((s,i)=>`<div style="display:flex;align-items:center;flex:1"><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div class="dot ${i+1<step?'dd':i+1===step?'da':'di'}">${i+1<step?'V':i+1}</div><span style="font-size:9px;color:${i+1<=step?'#a5b4fc':'#475569'}">${s}</span></div>${i<3?`<div style="flex:1;height:2px;background:${i+1<step?'#6366f1':'rgba(99,102,241,0.15)'};margin:0 4px 14px"></div>`:''}</div>`).join('')}</div>${err?`<div class="err">! ${err}</div>`:''}${step===1?`<div class="card" style="padding:24px"><h2 style="margin:0 0 4px;font-size:18px;color:white">Validar CURP</h2><p style="color:#64748b;font-size:12px;margin:0 0 14px">18 caracteres exactos</p><input class="inp" id="ci" type="text" maxlength="18" placeholder="ABCD870101HDFMNN09" value="${curp}" oninput="set({curp:this.value.toUpperCase()})" style="margin-bottom:8px;letter-spacing:2px" /><p style="color:#475569;font-size:11px;margin:0 0 14px">4 letras + 6 numeros + H/M + 5 letras + 2 caracteres</p><button class="btn" onclick="valCurp()" ${loading||curp.length<18?'disabled':''}>${loading?'Validando...':'Validar CURP'}</button></div>`:''}${step===2&&data?`<div class="card" style="padding:24px"><h2 style="margin:0 0 4px;font-size:18px;color:white">CURP Valido</h2><p style="color:#64748b;font-size:12px;margin:0 0 14px">Ingresa tu nombre para el correo</p><div class="row"><div><p style="color:#64748b;font-size:11px;margin:0">CURP</p><p style="margin:0;font-family:monospace;font-size:13px;font-weight:600;color:white">${curp.toUpperCase()}</p></div><button class="cbtn" onclick="cp('${curp.toUpperCase()}','c')">${copied==='c'?'OK':'Copiar'}</button></div><div class="row"><div><p style="color:#64748b;font-size:11px;margin:0">Fecha Nacimiento</p><p style="margin:0;font-weight:600;color:white">${data.fechaNacimiento}</p></div><button class="cbtn" onclick="cp('${data.fechaNacimiento}','f')">${copied==='f'?'OK':'Copiar'}</button></div><div class="row" style="margin-bottom:14px"><div><p style="color:#64748b;font-size:11px;margin:0">Sexo</p><p style="margin:0;font-weight:600;color:white">${data.sexo}</p></div></div><input class="inp" type="text" placeholder="Nombre(s)" style="margin-bottom:8px" oninput="set({nom:this.value})" /><input class="inp" type="text" placeholder="Apellido Paterno" style="margin-bottom:8px" oninput="set({ap1:this.value})" /><input class="inp" type="text" placeholder="Apellido Materno" style="margin-bottom:14px" oninput="set({ap2:this.value})" /><button class="btn" onclick="crearMail()" ${loading?'disabled':''}>${loading?'Generando...':'Generar Correo Atomic Mail'}</button></div>`:''}${step===3&&mail?`<div class="card" style="padding:24px"><h2 style="margin:0 0 4px;font-size:18px;color:white">Correo Generado</h2><p style="color:#64748b;font-size:12px;margin:0 0 14px">Usa estas credenciales en Atomic Mail y SAT</p><div class="ok" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div><p style="color:#86efac;font-size:11px;margin:0">Email</p><p style="margin:0;font-family:monospace;font-weight:700;word-break:break-all">${mail.email}</p></div><button class="cbtn" onclick="cp('${mail.email}','e')">${copied==='e'?'OK':'Copiar'}</button></div><div style="display:flex;justify-content:space-between;align-items:center"><div><p style="color:#86efac;font-size:11px;margin:0">Contrasena</p><p style="margin:0;font-family:monospace;font-weight:700">${mail.password}</p></div><button class="cbtn" onclick="cp('${mail.password}','p')">${copied==='p'?'OK':'Copiar'}</button></div></div><div class="info" style="margin-bottom:14px"><strong>Pasos:</strong><ol style="margin:6px 0 0 14px;padding:0;line-height:1.9;font-size:12px"><li>Crea cuenta: atomicmail.io/app/auth/sign-up</li><li>Ve a sat.gob.mx - Citas - Inscripcion RFC</li><li>Usa ${mail.email} en el formulario</li><li>Copia el codigo de Atomic Mail y pegalo en SAT</li></ol></div><button class="btn btn-green" onclick="descargar()">Descargar Credenciales TXT</button></div>`:''}${step===4?`<div class="card" style="padding:24px;text-align:center"><div style="font-size:56px;margin-bottom:10px">!</div><h2 style="margin:0 0 8px;font-size:22px" class="gradient-text">Listo!</h2><p style="color:#64748b;margin:0 0 16px">Credenciales descargadas correctamente.</p><div class="ok" style="text-align:left"><p style="margin:0 0 6px;font-weight:600">Completado:</p><ul style="margin:0;padding-left:16px;line-height:2;font-size:13px"><li>CURP validado</li><li>Correo: ${mail?.email||''}</li><li>Credenciales descargadas</li></ul></div></div>`:''}</div>`;
+  if(step===1){const i=document.getElementById('ci');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length);}}
+}
+render();
+</script>
 </body>
 </html>
