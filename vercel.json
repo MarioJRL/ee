@@ -1,7 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/api/validar-curp", "destination": "/api/validar-curp" },
-    { "source": "/api/crear-correo", "destination": "/api/crear-correo" },
-    { "source": "/api/descargar-credenciales", "destination": "/api/descargar-credenciales" }
-  ]
-}
+{}
